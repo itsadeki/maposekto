@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  proxy:
+    image: nginx:latest
+    container_name: proxy
+    depends_on:
+      - api
+      - web
+    volumes:
+      - ./proxy/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 80:80
+    networks:
+      - local
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: api
+    volumes:
+      - ./api:/app
+    env_file:
+      - ./environment/api.env
+    restart: on-failure
+    networks:
+      - local
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: web
+    volumes:
+      - ./web:/app
+    env_file:
+      - ./environment/web.env
+    ports:
+      - 3000:3000
+    restart: on-failure
+    networks:
+      - local
+
+networks:
+  local:
